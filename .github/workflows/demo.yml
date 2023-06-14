@@ -28,9 +28,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           strict: true
-          enforce_admins: false
           branch_pattern: 'production'
-          enforce_admins: false
           required_status_checks_strict: true
           required_status_checks_contexts: 'continuous-integration/github-actions'
           dismiss_stale_reviews: false
