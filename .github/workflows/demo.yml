@@ -10,15 +10,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Fail if branch name does not match pattern
-      run: |
-        BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-        DATE_PATTERN='^hotfix/((0[1-9])|([1-2][0-9])|(3[0-1]))_((0[1-9])|(1[0-2]))_[0-9]{2}$'
+      - name: Fail if branch name does not match pattern
+        run: |
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          DATE_PATTERN='^hotfix/((0[1-9])|([1-2][0-9])|(3[0-1]))_((0[1-9])|(1[0-2]))_[0-9]{2}$'
 
-        if [[ ! $BRANCH_NAME =~ $DATE_PATTERN ]]; then
-          echo "Error: Invalid branch name! Branch names for hotfixes should match 'hotfix/DD_MM_YY'."
-          exit 1
-        fi
+          if [[ ! $BRANCH_NAME =~ $DATE_PATTERN ]]; then
+            echo "Error: Invalid branch name! Branch names for hotfixes should match 'hotfix/DD_MM_YY'."
+            exit 1
+          fi
+
+      - name: Disable merge if branch name is invalid
+        uses: peter-evans/branch-protection@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          strict: true
+          enforce_admins: false
+          branch_pattern: 'production'
+          enforce_admins: false
+          required_status_checks_strict: true
+          required_status_checks_contexts: 'continuous-integration/github-actions'
+          dismiss_stale_reviews: false
+          dismissal_users: ''
+          dismissal_teams: ''
+          push_restrictions: ''
+          review_restrictions: ''
+          await_time: 10
