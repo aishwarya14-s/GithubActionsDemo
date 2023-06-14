@@ -1,8 +1,24 @@
-name: hello-world
-on: push
+name: Validate Branch Name
+
+on:
+  push:
+    branches:
+      - 'production'
+
 jobs:
-  my-job:
+  check_branch_name:
     runs-on: ubuntu-latest
+
     steps:
-      - name: my-step
-        run: echo "Hello World!"
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Fail if branch name does not match pattern
+      run: |
+        BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+        DATE_PATTERN='^hotfix/((0[1-9])|([1-2][0-9])|(3[0-1]))_((0[1-9])|(1[0-2]))_[0-9]{2}$'
+
+        if [[ ! $BRANCH_NAME =~ $DATE_PATTERN ]]; then
+          echo "Error: Invalid branch name! Branch names for hotfixes should match 'hotfix/DD_MM_YY'."
+          exit 1
+        fi
