@@ -2,7 +2,8 @@ name: Delete Old Branches
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Runs every day at midnight (adjust as needed)
+    - cron: '10 10 * * *' # Runs every day at 10:10 AM
+ # Runs every day at midnight (adjust as needed)
 
 jobs:
   delete-branches:
