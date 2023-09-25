@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: aishwarya14-s/GithubActionsDemo
+      - uses: aishwarya14-s/GithubActionsDemo@main
         with:
           github_token: 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
           last_commit_age_days: 30
