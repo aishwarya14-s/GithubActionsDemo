@@ -12,19 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Delete old branches
-        run: |
-          today=$(date -u +"%Y-%m-%d")
-          thirty_days_ago=$(date -u -d "$today -30 days" +"%Y-%m-%d")
-          while read -r branch_date branch_name; do
-            if [[ $branch_date < $thirty_days_ago ]]; then
-              echo "Deleting branch $branch_name"
-              git push origin --delete "$branch_name"
-            else
-              echo "Branch $branch_name is not old enough to delete"
-            fi
-          done
-        env : 
+      - uses: phpdocker-io/github-actions-delete-abandoned-branches@v2
+        with:
           github_token: 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
           last_commit_age_days: 30
           dry_run: no
