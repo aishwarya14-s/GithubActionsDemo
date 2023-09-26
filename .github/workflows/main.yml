@@ -1,0 +1,31 @@
+name: Delete Old Branches
+
+on:
+  schedule:
+    # Schedule this workflow to run daily
+    - cron: "30 10 * * *"
+
+jobs:
+  delete_old_branches:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: List branches
+        id: list_branches
+        run: |
+          git fetch --prune
+          git branch -r --format="%(refname:short) %(committerdate:short)" | grep -vE "main|master|staging|development|production" > branches.txt
+
+      - name: Delete old branches
+        run: |
+          while read -r branch; do
+            branch_name="${branch%% *}"
+            commit_date="${branch#* }"
+            if [[ $(date -d "$commit_date" +%s) -lt $(date -d "-30 days" +%s) ]]; then
+              git push --delete origin "$branch_name"
+              echo "Deleted branch: $branch_name, Commit Date: $commit_date"
+            fi
+          done < branches.txt
