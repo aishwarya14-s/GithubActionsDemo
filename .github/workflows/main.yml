@@ -1,4 +1,3 @@
-
 name: Delete Old Branches
 
 on:
@@ -34,7 +33,9 @@ jobs:
         
         # Loop through all remote branches
         for branch in $(git branch -r | grep -v HEAD | grep -v origin/development | grep -v origin/master | grep -v origin/main | grep -v origin/production | grep -v origin/staging | sed /\*/d); do
-            if [ "$threshold_date" \< "$current_date" ]; then
+            if [ "$branch" = "origin/development" ] || [ "$branch" = "origin/master" ] || [ "$branch" = "origin/main" ] || [ "$branch" = "origin/production" ] || [ "$branch" = "origin/staging" ]; then
+                echo "Branch to keep: $branch"
+            elif [ "$threshold_date" \< "$current_date" ]; then
                 echo "Branch to delete: $branch"
                 remote_branch=$(echo ${branch} | sed 's#origin/##' )
                 # Uncomment the next line to delete the branches
