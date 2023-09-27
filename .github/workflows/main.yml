@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
+   
     - name: Fetch all branches
       run: git fetch --prune --tags
 
@@ -20,13 +20,12 @@ jobs:
         current_date=$(date -u "+%Y-%m-%d")
         one_month_ago_date=$(date -d "-1 month" "+%Y-%m-%d" 2>/dev/null || date -j -v -1m "+%Y-%m-%d" 2>/dev/null)
         echo "Calculated one month ago date: $one_month_ago_date"
-        echo "ONE_MONTH_AGO_DATE=$one_month_ago_date" >> $GITHUB_ENV
-
+    
     - name: List branches for debugging
       run: |
         git branch -r
-        echo "Threshold date: $(date -d @$one_month_ago_date "+%Y-%m-%d")"
-
+        echo "Threshold date: $one_month_ago_date"
+    
     - name: List branches with last commit date
       id: list_branches
       run: |
