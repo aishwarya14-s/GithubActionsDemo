@@ -19,12 +19,13 @@ jobs:
       run: |
         current_date=$(date -u "+%Y-%m-%d")
         one_month_ago_date=$(date -d "-1 month" "+%Y-%m-%d" 2>/dev/null || date -j -v -1m "+%Y-%m-%d" 2>/dev/null)
+        echo "Current date: $current_date"
         echo "Calculated one month ago date: $one_month_ago_date"
     
     - name: List branches for debugging
       run: |
         git branch -r
-        echo "Threshold date: $one_month_ago_date"
+        echo "$one_month_ago_date"
     
     - name: List branches with last commit date
       run: |
@@ -32,7 +33,7 @@ jobs:
         for branch in $(git branch -r | grep -v HEAD | grep -v origin/development | grep -v origin/master | grep -v origin/main | grep -v origin/production | grep -v origin/staging | sed /\*/d); do
             last_commit_date=$(git log -1 --format="%cd" --date=format:%Y-%m-%d $branch)
             echo "Branch: $branch, Last Commit Date: $last_commit_date"
-            if [ "$last_commit_date" -lt  "$one_month_ago_date" ]; then
+            if [ "$last_commit_date" -gt  "$one_month_ago_date" ]; then
                 echo "Branch to delete: $branch"
                 remote_branch=$(echo ${branch} | sed 's#origin/##' )
                 # Uncomment the next line to delete the branches
