@@ -17,26 +17,25 @@ jobs:
     - name: Calculate one month ago date
       id: calculate_date
       run: |
-        current_date=$(date -u "+%Y-%m-%d")
-        one_month_ago_date=$(date -d "-1 month" "+%Y-%m-%d" 2>/dev/null || date -j -v -1m "+%Y-%m-%d" 2>/dev/null)
-        echo "Calculated one month ago date: $one_month_ago_date"
-
+        current_date=$(date -u "+%s")
+        one_month_ago_date=$(date -d "-1 month" "+%s" 2>/dev/null || date -j -v -1m "+%s" 2>/dev/null)
+        echo "Calculated one month ago date: $(date -d @$one_month_ago_date "+%Y-%m-%d")"
+        echo "ONE_MONTH_AGO_DATE=$one_month_ago_date" >> $GITHUB_ENV
+    
     - name: List branches for debugging
       run: |
         git branch -r
-        echo "Threshold date: $one_month_ago_date"
+        echo "Threshold date: $(date -d @$one_month_ago_date "+%Y-%m-%d")"
 
     - name: Run delete branches script
       run: |
-        threshold_date=${one_month_ago_date}
-
+        threshold_date=${ONE_MONTH_AGO_DATE}
+        
         # Loop through all remote branches
         for branch in $(git branch -r | grep -v HEAD | sed 's/origin\///'); do
-            if [ "$branch" = "development" ] || [ "$branch" = "master" ] || [ "$branch" = "main" ] || [ "$branch" = "production" ] || [ "$branch" = "staging" ]; then
-                echo "Branch to keep: $branch"
-            else
+            if [ "$branch" != "development" ] && [ "$branch" != "master" ] && [ "$branch" != "main" ] && [ "$branch" != "production" ] && [ "$branch" != "staging" ]; then
                 branch_commit_date=$(git log -1 --format="%ci" --branches=origin/$branch)
-                if [[ "$branch_commit_date" < "$threshold_date" ]]; then
+                if [ "$branch_commit_date" \< "$threshold_date" ]; then
                     echo "Branch to delete: $branch"
                     # Uncomment the next line to delete the branches
                     # git push origin --delete $branch
