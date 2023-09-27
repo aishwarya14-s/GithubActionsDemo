@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-   
+
     - name: Fetch all branches
       run: git fetch --prune --tags
 
@@ -20,22 +20,22 @@ jobs:
         current_date=$(date -u "+%Y-%m-%d")
         one_month_ago_date=$(date -d "-1 month" "+%Y-%m-%d" 2>/dev/null || date -j -v -1m "+%Y-%m-%d" 2>/dev/null)
         echo "Calculated one month ago date: $one_month_ago_date"
-    
+
     - name: List branches for debugging
       run: |
         git branch -r
         echo "Threshold date: $one_month_ago_date"
-    
+
     - name: Run delete branches script
       run: |
         threshold_date=${one_month_ago_date}
-        
+
         # Loop through all remote branches
         for branch in $(git branch -r | grep -v HEAD | sed 's/origin\///'); do
             if [ "$branch" = "development" ] || [ "$branch" = "master" ] || [ "$branch" = "main" ] || [ "$branch" = "production" ] || [ "$branch" = "staging" ]; then
                 echo "Branch to keep: $branch"
             else
-                branch_commit_date=$(git log -1 --format=%ci --branches=origin/$branch)
+                branch_commit_date=$(git log -1 --format="%ci" --branches=origin/$branch)
                 if [ "$branch_commit_date" \< "$threshold_date" ]; then
                     echo "Branch to delete: $branch"
                     # Uncomment the next line to delete the branches
