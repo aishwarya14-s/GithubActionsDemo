@@ -36,7 +36,7 @@ jobs:
         for branch in $(git branch -r | grep -v HEAD | grep -v origin/development | grep -v origin/master | grep -v origin/main | grep -v origin/production | grep -v origin/staging | sed /\*/d); do
             last_commit_date=$(git log -1 --format="%cd" --date=format:%Y-%m-%d $branch)
             
-            if [ "$one_month_ago_date" \> "$last_commit_date" ]; then
+            if [ "$one_month_ago_date" </ "$last_commit_date" ]; then
                 branches_to_delete+=("$branch")
             else
                 branches_created_after_threshold+=("$branch")
