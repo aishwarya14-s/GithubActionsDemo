@@ -36,7 +36,7 @@ jobs:
           one_month_ago_timestamp=$(date -d "$one_month_ago_date" +%s)
           echo "Branch: $branch, Last Commit Date: $(date -u -d @$last_commit_date "+%Y-%m-%d")"
 
-          if [ "$last_commit_date" -gt "$one_month_ago_timestamp" ]; then
+          if [ "$last_commit_date" -lt "$one_month_ago_timestamp" ]; then
               echo "Branch to delete: $branch"
               remote_branch=$(echo ${branch} | sed 's#origin/##' )
               # Uncomment the next line to delete the branches
