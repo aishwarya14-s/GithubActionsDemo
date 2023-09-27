@@ -11,9 +11,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install jq
-      run: sudo apt-get install jq -y
-
     - name: Fetch all branches
       run: git fetch --prune --tags
 
@@ -24,7 +21,7 @@ jobs:
         one_month_ago_date=$(date -d "-1 month" "+%Y-%m-%d" 2>/dev/null || date -j -v -1m "+%Y-%m-%d" 2>/dev/null)
         echo "Calculated one month ago date: $one_month_ago_date"
         echo "ONE_MONTH_AGO_DATE=$one_month_ago_date" >> $GITHUB_ENV
-    
+
     - name: List branches for debugging
       run: |
         git branch -r
@@ -33,12 +30,28 @@ jobs:
     - name: List branches with last commit date
       id: list_branches
       run: |
-        branches=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${GITHUB_REPOSITORY}/branches" | jq -r '.[] | select(.name != "main" and .name != "master" and .commit.committer.date < "'"$one_month_ago_date"'") | .name')
-        echo "Branches to delete: $branches"
+        branches_to_delete=()
+        branches_created_after_threshold=()
+
+        # Loop through all remote branches
+        for branch in $(git branch -r | grep -v HEAD | grep -v origin/development | grep -v origin/master | grep -v origin/main | grep -v origin/production | grep -v origin/staging | sed /\*/d); do
+            last_commit_date=$(git log -1 --format="%cd" --date=format:%Y-%m-%d $branch)
+            
+            if [ "$one_month_ago_date" \> "$last_commit_date" ]; then
+                branches_to_delete+=("$branch")
+            else
+                branches_created_after_threshold+=("$branch")
+            fi
+        done
+
+        echo "Branches to delete: ${branches_to_delete[@]}"
+        echo "Branches created after threshold date: ${branches_created_after_threshold[@]}"
     
     - name: Run delete branches script
       run: |
-        for branch in $branches; do
+        for branch in "${branches_to_delete[@]}"; do
             echo "Deleting branch: $branch"
-            git push origin --delete $branch
+            remote_branch=$(echo ${branch} | sed 's#origin/##' )
+            # Uncomment the next line to delete branches
+            # git push origin --delete $remote_branch
         done
