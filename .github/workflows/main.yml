@@ -31,14 +31,18 @@ jobs:
       run: |
         # Loop through all remote branches
         for branch in $(git branch -r | grep -v HEAD | grep -v origin/development | grep -v origin/master | grep -v origin/main | grep -v origin/production | grep -v origin/staging | sed /\*/d); do
-            last_commit_date=$(git log -1 --format="%cd" --date=format:%Y-%m-%d $branch)
-            echo "Branch: $branch, Last Commit Date: $last_commit_date"
-            if [ "$last_commit_date" -gt  "$one_month_ago_date" ]; then
-                echo "Branch to delete: $branch"
-                remote_branch=$(echo ${branch} | sed 's#origin/##' )
-                # Uncomment the next line to delete the branches
-                # git push origin --delete ${remote_branch}
-            else
-                echo "Branch created after threshold date: $branch"
-            fi
+          last_commit_date=$(git log -1 --format="%ct" $branch)
+          current_timestamp=$(date -d "$current_date" +%s)
+          one_month_ago_timestamp=$(date -d "$one_month_ago_date" +%s)
+          echo "Branch: $branch, Last Commit Date: $(date -u -d @$last_commit_date "+%Y-%m-%d")"
+
+          if [ "$last_commit_date" -gt "$one_month_ago_timestamp" ]; then
+              echo "Branch to delete: $branch"
+              remote_branch=$(echo ${branch} | sed 's#origin/##' )
+              # Uncomment the next line to delete the branches
+              # git push origin --delete ${remote_branch}
+        else
+            echo "Branch created after threshold date: $branch"
+        fi
         done
+
