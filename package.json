@@ -2,6 +2,7 @@
   "name": "semantic-node",
   "version": "0.0.0",
   "scripts": {
+    "release": "semantic-release",
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
