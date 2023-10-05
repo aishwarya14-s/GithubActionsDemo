@@ -1,29 +1,25 @@
-name: Node.js CI
+name: Semantic Release
 
 on:
   push:
-    branches: [master]
-
-env:
-  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    branches:
+      - master
 
 jobs:
-  build:
+  semantic-release:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '18.x'
           cache: 'npm'
-      - run: npm ci
-      - name: Install commitlint  # Add this step to install commitlint
-        run: npm install --save-dev @commitlint/{config-conventional,cli}
-      - run: npm run commitlint
-      - run: npx semantic-release
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run semantic-release
+        run: npm run release
